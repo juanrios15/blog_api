@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -5,8 +7,12 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from users.models import CustomUser
 
 
-class Image(models.Model):
-    file_name = models.FileField(upload_to=None)
+def content_file_name(instance, filename):
+    return os.path.join("gallery", filename)
+
+
+class GalleryImage(models.Model):
+    file_name = models.FileField(upload_to=content_file_name)
 
     def __str__(self):
         return str(self.file_name)
@@ -25,7 +31,7 @@ class Post(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_time = models.DateField(auto_now=False, auto_now_add=True)
     updated_time = models.DateField(auto_now=True, auto_now_add=True)
-    images = models.ForeignKey(Image, on_delete=models.CASCADE)
+    images = models.ManyToManyField(GalleryImage)
     tags = models.ManyToManyField(Tag)
     allow_comments = models.BooleanField(default=True)
 
