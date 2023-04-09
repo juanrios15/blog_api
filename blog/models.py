@@ -30,7 +30,7 @@ class Post(models.Model):
     content = models.TextField()
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_time = models.DateField(auto_now=False, auto_now_add=True)
-    updated_time = models.DateField(auto_now=True, auto_now_add=True)
+    updated_time = models.DateField(auto_now=True)
     images = models.ManyToManyField(GalleryImage)
     tags = models.ManyToManyField(Tag)
     allow_comments = models.BooleanField(default=True)
@@ -40,11 +40,11 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    comment = models.CharField(max_length=250)
+    comment_text = models.CharField(max_length=250)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     created_time = models.DateField(auto_now=False, auto_now_add=True)
-    updated_time = models.DateField(auto_now=True, auto_now_add=True)
+    updated_time = models.DateField(auto_now=True)
     previous_comment = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
@@ -55,7 +55,7 @@ class Like(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     liked = models.BooleanField(default=True)
     created_time = models.DateField(auto_now=False, auto_now_add=True)
-    updated_time = models.DateField(auto_now=True, auto_now_add=True)
+    updated_time = models.DateField(auto_now=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content = GenericForeignKey("content_type", "object_id")
