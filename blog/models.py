@@ -47,6 +47,7 @@ class Comment(models.Model):
 
 class Like(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    liked = models.BooleanField(default=True)
     created_time = models.DateField(auto_now=False, auto_now_add=True)
     updated_time = models.DateField(auto_now=True, auto_now_add=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
