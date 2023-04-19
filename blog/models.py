@@ -28,9 +28,9 @@ class Tag(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=250)
     content = models.TextField()
-    images = models.ManyToManyField(GalleryImage)
+    images = models.ManyToManyField(GalleryImage, blank=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, blank=True)
     allow_comments = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     created_time = models.DateField(auto_now=False, auto_now_add=True)
