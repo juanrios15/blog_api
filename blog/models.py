@@ -41,11 +41,13 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+    name = models.CharField(max_length=50)
+    email = models.EmailField(max_length=254)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     comment_text = models.CharField(max_length=250)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     previous_comment = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
-    is_accepted = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
     created_time = models.DateField(auto_now=False, auto_now_add=True)
     updated_time = models.DateField(auto_now=True)
 
@@ -54,13 +56,21 @@ class Comment(models.Model):
 
 
 class Like(models.Model):
+    name = models.CharField(max_length=50)
+    email = models.EmailField(max_length=254)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     liked = models.BooleanField(default=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content = GenericForeignKey("content_type", "object_id")
+    is_active = models.BooleanField(default=False)
     created_time = models.DateField(auto_now=False, auto_now_add=True)
     updated_time = models.DateField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "content_type", "object_id"], name="unique_like"),
+        ]
 
     def __str__(self):
         return str(self.object_id)

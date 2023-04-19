@@ -27,7 +27,9 @@ class PostsViewSet(viewsets.ModelViewSet):
             "lte",
         ),
         "user": ("exact",),
+        "user__username": ("icontains",),
         "tags": ("exact", "in"),
+        "is_active": ("exact",),
     }
 
 
@@ -35,6 +37,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filterset_fields = {
+        "comment_text": ("icontains",),
         "post": ("exact", "in"),
         "user": ("exact",),
         "created_time": (
@@ -46,6 +49,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
             "lte",
         ),
         "previous_comment": ("exact",),
+        "is_accepted": ("exact",),
     }
 
 

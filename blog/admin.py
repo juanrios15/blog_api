@@ -19,16 +19,16 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("id", "comment_text", "post", "user", "is_accepted", "created_time", "updated_time")
-    list_filter = ("user__username", "is_accepted")
+    list_display = ("id", "comment_text", "post", "user", "is_active", "created_time", "updated_time")
+    list_filter = ("user__username", "is_active")
     search_fields = ("comment_text", "user__username")
     list_per_page = 100
 
 
 @admin.register(Like)
 class LikeAdmin(admin.ModelAdmin):
-    list_display = ("id", "liked", "user", "content_type", "content", "created_time", "updated_time")
-    list_filter = ("user__username", "liked")
+    list_display = ("id", "liked", "user", "is_active", "content_type", "content", "created_time", "updated_time")
+    list_filter = ("user__username", "liked", "is_active")
     search_fields = ("user__username",)
     list_per_page = 100
 
