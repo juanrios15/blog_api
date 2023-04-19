@@ -32,4 +32,5 @@ class LikeAdmin(admin.ModelAdmin):
     search_fields = ("user__username",)
     list_per_page = 100
 
+
 admin.site.register(GalleryImage)
