@@ -47,7 +47,6 @@ class TagsViewSet(viewsets.ModelViewSet):
 
 
 class PostsViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.filter(is_active=True)
     serializer_class = PostSerializer
     filterset_fields = {
         "title": ("icontains",),
@@ -64,6 +63,10 @@ class PostsViewSet(viewsets.ModelViewSet):
         "tags": ("exact", "in"),
         "is_active": ("exact",),
     }
+
+    def get_queryset(self):
+        user = self.request.user
+        return Post.objects.all() if user.is_superuser else Post.objects.filter(is_active=True)
 
     def get_permissions(self):
         if self.action == "list" or self.action == "retrieve":
@@ -93,6 +96,10 @@ class CommentsViewSet(viewsets.ModelViewSet):
         "previous_comment": ("exact",),
     }
 
+    def get_queryset(self):
+        user = self.request.user
+        return Comment.objects.all() if user.is_superuser else Comment.objects.filter(is_active=True)
+
     def get_permissions(self):
         if self.action == "update" or self.action == "partial_update":
             permission_classes = [IsOwner]
@@ -104,7 +111,6 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
 
 class LikesViewSet(viewsets.ModelViewSet):
-    queryset = Like.objects.filter(is_active=True)
     serializer_class = LikeSerializer
     filterset_fields = {
         "user": ("exact",),
@@ -117,6 +123,10 @@ class LikesViewSet(viewsets.ModelViewSet):
             "lte",
         ),
     }
+
+    def get_queryset(self):
+        user = self.request.user
+        return Like.objects.all() if user.is_superuser else Like.objects.filter(is_active=True)
 
     def get_permissions(self):
         if self.action == "list" or self.action == "retrieve" or self.action == "create":
