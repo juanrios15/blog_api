@@ -1,34 +1,12 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework import viewsets, status
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.response import Response
+
 
 from .models import Tag, Post, Comment, Like
 from .serializers import TagSerializer, PostSerializer, CommentSerializer, LikeSerializer
-
-
-class IsOwnerOrStaff(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        if request.user.is_staff:
-            return True
-        return obj.user == request.user
-
-
-class IsOwnerOrSuperuser(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        if request.user.is_superuser:
-            return True
-        return obj.user == request.user
-
-
-class IsOwner(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return obj.user == request.user
+from .permissions import IsOwner, IsOwnerOrStaff, IsOwnerOrSuperuser
 
 
 class TagsViewSet(viewsets.ModelViewSet):
@@ -48,6 +26,7 @@ class TagsViewSet(viewsets.ModelViewSet):
 
 class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
+    parser_classes = (MultiPartParser,)
     filterset_fields = {
         "title": ("icontains",),
         "created_time": (
@@ -60,7 +39,7 @@ class PostsViewSet(viewsets.ModelViewSet):
         ),
         "user": ("exact",),
         "user__username": ("icontains",),
-        "tags": ("exact", "in"),
+        "tags": ("exact",),
         "is_active": ("exact",),
     }
 
@@ -77,9 +56,21 @@ class PostsViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
 
+    def create(self, request, *args, **kwargs):
+        request.data._mutable = True
+        if request.user.is_superuser:
+            request.data['is_active'] = True
+        else:
+            request.data['is_active'] = False
+        request.data._mutable = False
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class CommentsViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.filter(is_active=True)
     serializer_class = CommentSerializer
     filterset_fields = {
         "comment_text": ("icontains",),
@@ -95,6 +86,9 @@ class CommentsViewSet(viewsets.ModelViewSet):
         ),
         "previous_comment": ("exact",),
     }
+
+    def get_serializer_context(self):
+        return {"request": self.request}
 
     def get_queryset(self):
         user = self.request.user
