@@ -1,12 +1,12 @@
 from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 
-
-from .models import Tag, Post, Comment, Like
+from .models import Tag, Post, Comment, Like, GalleryImage
 from .serializers import TagSerializer, PostSerializer, CommentSerializer, LikeSerializer
-from .permissions import IsOwner, IsOwnerOrStaff, IsOwnerOrSuperuser
+from .permissions import IsOwner, IsOwnerOrStaff, IsOwnerOrSuperuser, IsSuperuser
 
 
 class TagsViewSet(viewsets.ModelViewSet):
@@ -52,22 +52,35 @@ class PostsViewSet(viewsets.ModelViewSet):
             permission_classes = [AllowAny]
         elif self.action == "update" or self.action == "partial_update" or self.action == "destroy":
             permission_classes = [IsOwnerOrSuperuser]
+        elif self.action == "approve_post":
+            permission_classes = [IsSuperuser]
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
 
     def create(self, request, *args, **kwargs):
-        request.data._mutable = True
-        if request.user.is_superuser:
-            request.data['is_active'] = True
-        else:
-            request.data['is_active'] = False
-        request.data._mutable = False
+        request.data.pop("images")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        post = serializer.save()
+        for uploaded_file in request.FILES.getlist("images"):
+            image = GalleryImage(file_name=uploaded_file)
+            image.save()
+            post.images.add(image)
+        if request.user.is_superuser:
+            post.is_active = True
+        else:
+            post.is_active = False
+        post.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @action(methods=["post"], detail=True)
+    def approve_post(self, request, pk=None):
+        post = self.get_object()
+        post.is_active = True
+        post.save()
+        return Response({"message": "Post approved"}, status=status.HTTP_202_ACCEPTED)
 
 
 class CommentsViewSet(viewsets.ModelViewSet):

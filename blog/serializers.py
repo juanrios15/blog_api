@@ -10,14 +10,7 @@ class TagSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GalleryImage
-        fields = "__all__"
-
-
 class PostSerializer(serializers.ModelSerializer):
-    images = ImageSerializer(many=True, required=False)
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     user_username = serializers.ReadOnlyField(source='user.username')
     user_email = serializers.ReadOnlyField(source='user.email')
