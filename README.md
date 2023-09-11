@@ -1,4 +1,4 @@
-# Blog API with Django Rest Framework
+# Blog API
 
 Welcome to the Blog API project using Django Rest Framework. This project provides a simple yet comprehensive API for blog management using DRF's ViewSets.
 
