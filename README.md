@@ -164,13 +164,13 @@ The likes endpoint allows users to like various entities within the application.
 
 To create a like for a post with ID 1, you can use the following `curl` command:
 
-\```
+```
 curl -X POST \
 -H "Authorization: Token YOUR_TOKEN" \
 -H "Content-Type: application/json" \
 -d '{"name": "John Doe", "email": "johndoe@example.com", "user": 1, "liked": true, "content_type": POST_CONTENT_TYPE_ID, "object_id": 1, "is_active": true}' \
 "http://localhost:8000/blog/likes/"
-\```
+```
 
 Replace `POST_CONTENT_TYPE_ID` with the appropriate content type ID for the post model. The `content_type` field represents the model (or entity) you are liking, and `object_id` is the ID of the specific instance of that model.
 
