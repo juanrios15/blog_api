@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -71,3 +72,9 @@ class LikeSerializer(serializers.ModelSerializer):
         model = Like
         fields = "__all__"
         read_only_fields = ["is_active", "created_time", "updated_time"]
+
+
+class ContentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentType
+        fields = "__all__"

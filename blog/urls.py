@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from .views import TagsViewSet, PostsViewSet, CommentsViewSet, LikesViewSet
+from .views import TagsViewSet, PostsViewSet, CommentsViewSet, LikesViewSet, ContentTypeListView
 
 
 app_name = "blog"
@@ -15,4 +15,5 @@ router.register(r"likes", LikesViewSet, basename="likes")
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("contenttypes/", ContentTypeListView.as_view(), name="contenttype-list"),
 ]

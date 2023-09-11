@@ -1,15 +1,15 @@
-from rest_framework import viewsets, status
+from django.contrib.contenttypes.models import ContentType
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 
 from .models import Tag, Post, Comment, Like
-from .serializers import TagSerializer, PostSerializer, CommentSerializer, LikeSerializer
+from .serializers import TagSerializer, PostSerializer, CommentSerializer, LikeSerializer, ContentTypeSerializer
 from .permissions import IsOwner, IsOwnerOrStaff, IsOwnerOrSuperuser, IsSuperuser
 
 
-# TODO : Explain all blog features about likes and comments
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -217,3 +217,9 @@ class LikesViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsOwnerOrStaff]
         return [permission() for permission in permission_classes]
+
+
+class ContentTypeListView(generics.ListAPIView):
+    queryset = ContentType.objects.all()
+    serializer_class = ContentTypeSerializer
+    permission_classes = [IsSuperuser]
